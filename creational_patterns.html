@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creational Design Patterns — Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  });"></script>
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a32;
+    --text: #e8e6f0;
+    --muted: #8884a0;
+    --accent1: #c084fc;
+    --accent2: #38bdf8;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --accent5: #f472b6;
+    --gold: #fbbf24;
+    --code-bg: #12121a;
+    --tag-bg: #1e1e30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  .hero {
+    padding: 80px 40px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #e8e6f0 0%, #c084fc 60%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    max-width: 580px;
+    line-height: 1.8;
+  }
+
+  .toc {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 40px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc-chip {
+    padding: 6px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+    cursor: default;
+    transition: all 0.2s;
+  }
+
+  .toc-chip:hover { border-color: var(--accent1); color: var(--accent1); }
+
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+  }
+
+  /* Pattern Section */
+  .pattern-block {
+    margin-top: 80px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pattern-block:last-child { border-bottom: none; }
+
+  .pattern-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .pattern-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.08;
+    color: var(--text);
+    flex-shrink: 0;
+    width: 60px;
+  }
+
+  .pattern-title-group h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .pattern-subtitle {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* Math card */
+  .math-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .math-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .math-card-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .math-line {
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+
+  .math-line .katex { font-size: 1.05em; }
+  .math-line .katex-display { margin: 0; }
+
+  .math-note {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* Analogy box */
+  .analogy {
+    display: flex;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--tag-bg);
+    border-radius: 8px;
+    margin: 20px 0;
+    align-items: flex-start;
+  }
+
+  .analogy-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  .analogy p { font-size: 15px; color: var(--muted); line-height: 1.7; }
+  .analogy strong { color: var(--text); }
+
+  /* Exercises */
+  .exercises-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 40px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 16px 0;
+    transition: border-color 0.2s;
+  }
+
+  .exercise-card:hover { border-color: #3a3a48; }
+
+  .exercise-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .exercise-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+    flex-shrink: 0;
+  }
+
+  .exercise-title {
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .exercise-scenario {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 16px;
+    padding-left: 2px;
+  }
+
+  .exercise-task {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  .exercise-task strong {
+    color: var(--accent2);
+    font-weight: 500;
+  }
+
+  /* Code block */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #cdd6f4;
+    white-space: pre;
+  }
+
+  .kw { color: #cba6f7; }
+  .fn { color: #89b4fa; }
+  .str { color: #a6e3a1; }
+  .cm { color: #585b70; }
+  .num { color: #fab387; }
+  .cls { color: #f9e2af; }
+
+  /* Hints */
+  .hints {
+    margin-top: 16px;
+  }
+
+  .hints-label {
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hint-item {
+    display: flex;
+    gap: 10px;
+    margin: 8px 0;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    align-items: flex-start;
+  }
+
+  .hint-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+    margin-top: 9px;
+    opacity: 0.6;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #cba6f7;
+    border: 1px solid var(--border);
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 16px 0;
+  }
+
+  .compare-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .compare-table td:first-child { color: var(--text); font-weight: 500; }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .yes { color: var(--accent3) !important; }
+  .no  { color: #f87171 !important; }
+
+  /* Color accents per pattern */
+  .p1 .math-card::before { background: var(--accent1); }
+  .p1 .pattern-title-group h2 { color: var(--accent1); }
+  .p1 .pattern-subtitle { color: var(--accent1); }
+  .p1 .exercise-num { background: rgba(192,132,252,0.12); color: var(--accent1); }
+
+  .p2 .math-card::before { background: var(--accent2); }
+  .p2 .pattern-title-group h2 { color: var(--accent2); }
+  .p2 .pattern-subtitle { color: var(--accent2); }
+  .p2 .exercise-num { background: rgba(56,189,248,0.12); color: var(--accent2); }
+
+  .p3 .math-card::before { background: var(--accent3); }
+  .p3 .pattern-title-group h2 { color: var(--accent3); }
+  .p3 .pattern-subtitle { color: var(--accent3); }
+  .p3 .exercise-num { background: rgba(52,211,153,0.12); color: var(--accent3); }
+
+  .p4 .math-card::before { background: var(--accent4); }
+  .p4 .pattern-title-group h2 { color: var(--accent4); }
+  .p4 .pattern-subtitle { color: var(--accent4); }
+  .p4 .exercise-num { background: rgba(251,146,60,0.12); color: var(--accent4); }
+
+  .p5 .math-card::before { background: var(--accent5); }
+  .p5 .pattern-title-group h2 { color: var(--accent5); }
+  .p5 .pattern-subtitle { color: var(--accent5); }
+  .p5 .exercise-num { background: rgba(244,114,182,0.12); color: var(--accent5); }
+
+  /* Summary comparison at bottom */
+  .summary-section {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .summary-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 32px; }
+    .hero h1 { font-size: 36px; }
+    .content { padding: 0 20px 60px; }
+    .toc { padding: 24px 20px; }
+    .pattern-number { font-size: 44px; }
+    .pattern-title-group h2 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Python · Design Patterns · Foundations</div>
+  <h1>Creational Design Patterns</h1>
+  <p>Precise mathematical definitions, intuitive analogies, and 10 hands-on exercises — building from first principles.</p>
+</div>
+
+<div class="toc">
+  <div class="toc-chip">1. Singleton</div>
+  <div class="toc-chip">2. Factory Method</div>
+  <div class="toc-chip">3. Abstract Factory</div>
+  <div class="toc-chip">4. Builder</div>
+  <div class="toc-chip">5. Prototype</div>
+</div>
+
+<div class="content">
+
+  <!-- ======== SINGLETON ======== -->
+  <div class="pattern-block p1">
+    <div class="pattern-header">
+      <div class="pattern-number">1</div>
+      <div class="pattern-title-group">
+        <h2>Singleton</h2>
+        <div class="pattern-subtitle">Constant Function</div>
+      </div>
+    </div>
+
+    <div class="math-card">
+      <div class="math-card-label">Mathematical Definition</div>
+      <div class="math-line">$$f(x) = c \quad \forall x$$</div>
+      <div class="math-line">$$f(1) = c, \quad f(2) = c, \quad f(99) = c$$</div>
+      <div class="math-line">$$\text{addr}(f(1)) = \text{addr}(f(2)) = \cdots = \text{addr}(f(n)) = \text{addr}(c)$$</div>
+      <div class="math-note">
+        The uniqueness condition — there exists <em>exactly one</em> instance at all times:
+        $$\exists! \, c \in \mathcal{O} \quad \text{such that} \quad f(n) = c \quad \forall n$$
+        The symbol $\exists!$ means "there exists exactly one." Any mutation to $f(i)$ is immediately visible through $f(j)$ — because they are the same object.
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">π</div>
+      <p>Think of it like the number <strong>π</strong>. No matter where in mathematics you reference π, it is always the same value at the same conceptual address. You never create a "new π" — you always get the one that already exists.</p>
+    </div>
+
+    <div class="exercises-heading">Exercises</div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 01</div>
+        <div class="exercise-title">Basic Singleton</div>
+      </div>
+      <div class="exercise-scenario">Imagine your app connects to a database. Every time a new connection is created, it costs time and memory. A Singleton ensures only one connection is ever made.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Create a <code>DatabaseConnection</code> class. No matter how many times someone calls it, it should return the exact same object.</div>
+      <div class="code-block"><pre><span class="fn">db1</span> = <span class="cls">DatabaseConnection</span>()
+<span class="fn">db2</span> = <span class="cls">DatabaseConnection</span>()
+
+<span class="kw">print</span>(db1 <span class="kw">is</span> db2)  <span class="cm"># Should print: True</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Python classes have a special method <code>__new__</code> that runs <em>before</em> <code>__init__</code>. This is where you control whether to create a new object or return the existing one.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Store the single instance as a class variable like <code>_instance = None</code>.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Check: if <code>_instance</code> is None → create it. Otherwise → return it.</div></div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 02</div>
+        <div class="exercise-title">Thread-Safe Singleton</div>
+      </div>
+      <div class="exercise-scenario">What if two parts of your app try to create the Singleton at the exact same time? You could end up with two instances. This exercise fixes that.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Extend Exercise 1 so it's safe when multiple threads run simultaneously.</div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Import <code>threading</code> and create a <code>Lock</code> object at the class level.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Wrap your instance-creation logic inside <code>with lock:</code> to block other threads until the first one finishes.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>This is called "double-checked locking" — check if <code>_instance</code> is None <em>before and after</em> acquiring the lock for efficiency.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== FACTORY METHOD ======== -->
+  <div class="pattern-block p2">
+    <div class="pattern-header">
+      <div class="pattern-number">2</div>
+      <div class="pattern-title-group">
+        <h2>Factory Method</h2>
+        <div class="pattern-subtitle">Mapping Function</div>
+      </div>
+    </div>
+
+    <div class="math-card">
+      <div class="math-card-label">Mathematical Definition</div>
+      <div class="math-line">$$f : K \rightarrow \mathcal{T}$$</div>
+      <div class="math-line">$$f(k) = T_k() \quad \text{where} \quad T_k \in \mathcal{T}$$</div>
+      <div class="math-line">$$f(\text{"dog"}) = \text{Dog()}, \quad f(\text{"cat"}) = \text{Cat()}, \quad f(\text{"bird"}) = \text{Bird()}$$</div>
+      <div class="math-note">
+        $f$ is a <strong>total function</strong> — every valid key maps to exactly one type:
+        $$\forall k \in K, \quad \exists! \, T_k \in \mathcal{T} \quad \text{such that} \quad f(k) = T_k()$$
+        Unlike Singleton, every call produces a <strong>fresh</strong> object:
+        $$\text{addr}(f(k)_1) \neq \text{addr}(f(k)_2)$$
+        The caller only knows $K$ (the keys). The factory owns the knowledge of $\mathcal{T}$ (the types). This decoupling is the core value.
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🍔</div>
+      <p>Think of it like a <strong>vending machine</strong>. You press a button (key $k$), the machine internally knows which product to dispense (type $T_k$), and gives you a fresh item. You never reach inside the machine yourself — you just press the button.</p>
+    </div>
+
+    <div class="exercises-heading">Exercises</div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 03</div>
+        <div class="exercise-title">Animal Factory</div>
+      </div>
+      <div class="exercise-scenario">You're building a virtual pet app. Depending on the user's choice, you need to create a different animal. You don't want the rest of your code worrying about which animal class to use.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Create <code>Dog</code>, <code>Cat</code>, and <code>Bird</code> classes, each with a <code>speak()</code> method. Write a factory that returns the right one based on a string.</div>
+      <div class="code-block"><pre><span class="fn">animal</span> = <span class="cls">AnimalFactory</span>.create(<span class="str">"dog"</span>)
+animal.speak()  <span class="cm"># Woof!</span>
+
+<span class="fn">animal</span> = <span class="cls">AnimalFactory</span>.create(<span class="str">"cat"</span>)
+animal.speak()  <span class="cm"># Meow!</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Use a dictionary to map strings to classes: <code>{"dog": Dog, "cat": Cat}</code>. This is cleaner than a long <code>if/elif</code> chain.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Raise a helpful <code>ValueError</code> if the animal type isn't recognized.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>The factory can be a class with a <code>@staticmethod</code> or just a plain function — either works.</div></div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 04</div>
+        <div class="exercise-title">Payment Factory</div>
+      </div>
+      <div class="exercise-scenario">You're building a checkout system. Users can pay by Credit Card, PayPal, or Crypto. Each has a different <code>pay(amount)</code> method, but the rest of the app shouldn't care which one is being used.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Build <code>CreditCard</code>, <code>PayPal</code>, and <code>Crypto</code> classes, each with a <code>pay(amount)</code> method. Write a factory that returns the right one.</div>
+      <div class="code-block"><pre><span class="fn">processor</span> = <span class="cls">PaymentFactory</span>.create(<span class="str">"paypal"</span>)
+processor.pay(<span class="num">99.99</span>)  <span class="cm"># Paying $99.99 via PayPal</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>All three classes should share the same interface (same method name <code>pay</code>). This is what makes them interchangeable.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Think about edge cases — should <code>"bitcoin"</code> map to <code>Crypto</code>? Handle them explicitly.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Try adding a base class <code>PaymentProcessor</code> with an abstract <code>pay()</code> method using Python's <code>abc</code> module.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== ABSTRACT FACTORY ======== -->
+  <div class="pattern-block p3">
+    <div class="pattern-header">
+      <div class="pattern-number">3</div>
+      <div class="pattern-title-group">
+        <h2>Abstract Factory</h2>
+        <div class="pattern-subtitle">Vector-Valued Function</div>
+      </div>
+    </div>
+
+    <div class="math-card">
+      <div class="math-card-label">Mathematical Definition</div>
+      <div class="math-line">$$f : F \rightarrow \mathcal{T}_1 \times \mathcal{T}_2 \times \cdots \times \mathcal{T}_n$$</div>
+      <div class="math-line">$$f(k) = (T_1^{(k)}(),\ T_2^{(k)}(),\ \ldots,\ T_n^{(k)}())$$</div>
+      <div class="math-line">$$f(\text{"dark"}) = (\text{DarkButton()},\ \text{DarkCheckbox()},\ \text{DarkMenu()})$$</div>
+      <div class="math-note">
+        The <strong>consistency condition</strong> — all objects in the output tuple must belong to the same family $k$:
+        $$\forall i \in \{1, \ldots, n\}, \quad T_i^{(k)} \in \mathcal{F}_k$$
+        You can never get a <code>DarkButton</code> paired with a <code>LightCheckbox</code>. Compared to Factory Method:
+        $$\text{Factory Method}: \quad f(k) = T_k() \quad \text{(scalar output)}$$
+        $$\text{Abstract Factory}: \quad f(k) = (T_1^{(k)},\ \ldots,\ T_n^{(k)}) \quad \text{(vector output)}$$
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🛋</div>
+      <p>Think of it like ordering a <strong>matching furniture set</strong>. You pick the brand (family $k$), and you receive a sofa, table, and lamp that all match. The store guarantees they are from the same collection — you could never accidentally get a modern sofa with a Victorian lamp.</p>
+    </div>
+
+    <div class="exercises-heading">Exercises</div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 05</div>
+        <div class="exercise-title">UI Theme Factory</div>
+      </div>
+      <div class="exercise-scenario">Your app supports Dark and Light themes. Each theme has its own version of a <code>Button</code> and <code>Checkbox</code>. When the user switches themes, everything must update consistently.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Build a <code>DarkThemeFactory</code> and <code>LightThemeFactory</code>, each producing matching <code>Button</code> and <code>Checkbox</code> objects.</div>
+      <div class="code-block"><pre><span class="fn">factory</span> = <span class="cls">DarkThemeFactory</span>()
+<span class="fn">button</span> = factory.create_button()
+<span class="fn">checkbox</span> = factory.create_checkbox()
+button.render()    <span class="cm"># Dark Button</span>
+checkbox.render()  <span class="cm"># Dark Checkbox</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Start by defining abstract base classes: <code>ThemeFactory</code>, <code>Button</code>, <code>Checkbox</code> using Python's <code>abc</code> module.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Each concrete factory (<code>DarkThemeFactory</code>) implements the abstract factory and returns its own version of each widget.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Client code should only ever talk to the abstract factory — it never imports <code>DarkButton</code> directly. That's the whole point.</div></div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 06</div>
+        <div class="exercise-title">Cross-Platform Widgets</div>
+      </div>
+      <div class="exercise-scenario">Your desktop app runs on both Windows and Mac. The <code>Toolbar</code> and <code>Menu</code> look different on each platform, but the app logic that uses them should be identical.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Create a <code>WindowsFactory</code> and <code>MacFactory</code>, each producing a <code>Toolbar</code> and <code>Menu</code>.</div>
+      <div class="code-block"><pre><span class="fn">factory</span> = <span class="cls">WindowsFactory</span>()
+factory.create_toolbar().render()  <span class="cm"># Windows Toolbar</span>
+factory.create_menu().render()     <span class="cm"># Windows Menu</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>This is the same structure as Exercise 5 — the key skill is recognising when Abstract Factory fits (families of related objects).</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Try writing a <code>render_ui(factory)</code> function that takes <em>any</em> factory and calls both <code>create_toolbar()</code> and <code>create_menu()</code>. It should work unchanged for Windows or Mac.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== BUILDER ======== -->
+  <div class="pattern-block p4">
+    <div class="pattern-header">
+      <div class="pattern-number">4</div>
+      <div class="pattern-title-group">
+        <h2>Builder</h2>
+        <div class="pattern-subtitle">Function Composition</div>
+      </div>
+    </div>
+
+    <div class="math-card">
+      <div class="math-card-label">Mathematical Definition</div>
+      <div class="math-line">$$g_i : S \rightarrow S \quad \text{(each step is a state transformation)}$$</div>
+      <div class="math-line">$$f = g_n \circ g_{n-1} \circ \cdots \circ g_2 \circ g_1$$</div>
+      <div class="math-line">$$s_1 = g_1(s_0), \quad s_2 = g_2(s_1), \quad \ldots, \quad s_n = g_n(s_{n-1})$$</div>
+      <div class="math-note">
+        The final <code>.build()</code> is a <strong>projection function</strong> $\phi$ that extracts the finished object:
+        $$\phi : S \rightarrow \mathcal{O}, \qquad \text{result} = \phi(s_n) = \phi(f(s_0))$$
+        Each step $g_i$ only modifies <em>one aspect</em> of the state: $g_i(s) = s \oplus \delta_i$. Note that composition is generally <strong>not commutative</strong>:
+        $$g_2 \circ g_1 \neq g_1 \circ g_2 \quad \text{in general}$$
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🏭</div>
+      <p>Think of it like an <strong>assembly line</strong>. Each station $g_i$ adds one component. The car starts as an empty frame $s_0$, gets an engine at $g_1$, wheels at $g_2$, paint at $g_3$. The final inspection $\phi$ signs it off as a complete car. No station knows or cares what the others do.</p>
+    </div>
+
+    <div class="exercises-heading">Exercises</div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 07</div>
+        <div class="exercise-title">Pizza Builder</div>
+      </div>
+      <div class="exercise-scenario">A pizza can have many combinations: size, crust, and toppings. Instead of a constructor with 10 arguments, a Builder lets you add what you want step by step.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Create a <code>PizzaBuilder</code> that chains methods together and ends with <code>.build()</code>.</div>
+      <div class="code-block"><pre><span class="fn">pizza</span> = <span class="cls">PizzaBuilder</span>() \
+    .set_size(<span class="str">"large"</span>) \
+    .set_crust(<span class="str">"thin"</span>) \
+    .add_topping(<span class="str">"cheese"</span>) \
+    .add_topping(<span class="str">"mushrooms"</span>) \
+    .build()
+
+<span class="kw">print</span>(pizza)  <span class="cm"># Large thin-crust pizza with: cheese, mushrooms</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>For chaining to work, each method must <code>return self</code> at the end — this is the $g_i(s) = s \oplus \delta_i$ step in code.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div><code>add_topping()</code> should append to a list, so it can be called multiple times.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div><code>build()</code> should return a <code>Pizza</code> object (or formatted string), not the builder itself — this is the $\phi$ projection.</div></div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 08</div>
+        <div class="exercise-title">SQL Query Builder</div>
+      </div>
+      <div class="exercise-scenario">Writing raw SQL strings by hand is messy and error-prone. A Query Builder lets you construct them cleanly, piece by piece.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Build a <code>QueryBuilder</code> that constructs a SQL string step by step.</div>
+      <div class="code-block"><pre><span class="fn">query</span> = <span class="cls">QueryBuilder</span>() \
+    .select(<span class="str">"*"</span>) \
+    .from_table(<span class="str">"users"</span>) \
+    .where(<span class="str">"age > 18"</span>) \
+    .build()
+
+<span class="kw">print</span>(query)  <span class="cm"># SELECT * FROM users WHERE age > 18</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Store each part (<code>select</code>, <code>table</code>, <code>condition</code>) as instance variables — these are your state $s$.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div><code>build()</code> assembles them in the correct order using an f-string or <code>join()</code> — this is the $\phi$ projection.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>What if <code>.where()</code> is never called? Make sure <code>build()</code> handles optional parts gracefully.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== PROTOTYPE ======== -->
+  <div class="pattern-block p5">
+    <div class="pattern-header">
+      <div class="pattern-number">5</div>
+      <div class="pattern-title-group">
+        <h2>Prototype</h2>
+        <div class="pattern-subtitle">Copy Function</div>
+      </div>
+    </div>
+
+    <div class="math-card">
+      <div class="math-card-label">Mathematical Definition</div>
+      <div class="math-line">$$f : \mathcal{O} \rightarrow \mathcal{O}$$</div>
+      <div class="math-line">$$f(x) = x' \quad \text{such that} \quad \text{val}(x') = \text{val}(x) \quad \text{and} \quad \text{addr}(x') \neq \text{addr}(x)$$</div>
+      <div class="math-note">
+        The <strong>independence condition</strong> — for any mutation $m$ applied to the clone $x'$:
+        $$m(x') \Rightarrow \text{val}(x) \text{ unchanged}$$
+        This must hold <em>recursively</em> for all nested objects $x_i$ inside $x$:
+        $$\text{shallow copy}: \quad \text{addr}(x'_i) = \text{addr}(x_i) \quad \text{(independence violated)}$$
+        $$\text{deep copy}: \quad \text{addr}(x'_i) \neq \text{addr}(x_i) \quad \forall i \quad \text{(independence holds)}$$
+        Chained cloning always produces independent objects:
+        $$f(x) = x', \quad f(x') = x'', \quad \text{addr}(x) \neq \text{addr}(x') \neq \text{addr}(x'')$$
+      </div>
+    </div>
+
+    <div class="analogy">
+      <div class="analogy-icon">🧬</div>
+      <p>Think of it like <strong>biological cell division</strong>. A cell $x$ splits into $x'$ — same DNA (values), but a completely separate physical cell (address). Damage to $x'$ does not damage $x$. They share an origin but are now fully independent living entities.</p>
+    </div>
+
+    <div class="exercises-heading">Exercises</div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 09</div>
+        <div class="exercise-title">Basic Clone</div>
+      </div>
+      <div class="exercise-scenario">You have a <code>Car</code> object that took a lot of setup. You want a second car that's almost identical — just a different color. Instead of rebuilding from scratch, you clone it.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Create a <code>Car</code> class with a <code>clone()</code> method. Verify that changing the clone doesn't affect the original.</div>
+      <div class="code-block"><pre><span class="fn">car1</span> = <span class="cls">Car</span>(<span class="str">"Toyota"</span>, <span class="str">"red"</span>, <span class="str">"V6"</span>)
+<span class="fn">car2</span> = car1.clone()
+car2.color = <span class="str">"blue"</span>
+
+<span class="kw">print</span>(car1.color)  <span class="cm"># red  ← original unchanged: val(x) unchanged</span>
+<span class="kw">print</span>(car2.color)  <span class="cm"># blue ← clone changed:    m(x') applied</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Python's <code>copy</code> module has two options: <code>copy.copy()</code> (shallow) and <code>copy.deepcopy()</code> (deep). Use deep copy — it satisfies the full independence condition.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Your <code>clone()</code> method can simply <code>return copy.deepcopy(self)</code>.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>Test it with a nested attribute (like a list of features) to see exactly <em>why</em> deep copy matters over shallow.</div></div>
+      </div>
+    </div>
+
+    <div class="exercise-card">
+      <div class="exercise-top">
+        <div class="exercise-num">Exercise 10</div>
+        <div class="exercise-title">Prototype Registry</div>
+      </div>
+      <div class="exercise-scenario">You have a catalog of pre-built shapes. Users pick one from the catalog and customise their own copy — without ever touching the original template.</div>
+      <div class="exercise-task"><strong>Your task:</strong> Build a <code>ShapeRegistry</code> that stores prototype shapes. Users request a clone by name and modify it freely.</div>
+      <div class="code-block"><pre><span class="fn">registry</span> = <span class="cls">ShapeRegistry</span>()
+registry.register(<span class="str">"circle"</span>, <span class="cls">Circle</span>(radius=<span class="num">5</span>, color=<span class="str">"red"</span>))
+registry.register(<span class="str">"rectangle"</span>, <span class="cls">Rectangle</span>(width=<span class="num">10</span>, height=<span class="num">4</span>, color=<span class="str">"blue"</span>))
+
+<span class="fn">my_circle</span> = registry.get_clone(<span class="str">"circle"</span>)
+my_circle.color = <span class="str">"green"</span>
+
+<span class="fn">original</span> = registry.get_clone(<span class="str">"circle"</span>)
+<span class="kw">print</span>(original.color)  <span class="cm"># red ← registry untouched: val(x) unchanged</span></pre></div>
+      <div class="hints">
+        <div class="hints-label">💡 Hints</div>
+        <div class="hint-item"><div class="hint-dot"></div><div>The registry is just a dictionary: <code>{"circle": &lt;Circle object&gt;}</code>. The values are your prototypes $x$.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div><code>get_clone()</code> should return <code>copy.deepcopy(self._prototypes[name])</code> — never the original. This is $f(x) = x'$.</div></div>
+        <div class="hint-item"><div class="hint-dot"></div><div>This pattern is powerful when object creation is expensive (e.g. loaded from a file or database) — you pay the cost once, then clone cheaply.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== SUMMARY ======== -->
+  <div class="summary-section">
+    <h2>Pattern Comparison</h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Pattern</th>
+          <th>Math Type</th>
+          <th>New object each call?</th>
+          <th>Coordinated output?</th>
+          <th>Copies existing?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Singleton</td>
+          <td>Constant $f(x) = c$</td>
+          <td class="no">Never</td>
+          <td class="no">No</td>
+          <td class="no">No</td>
+        </tr>
+        <tr>
+          <td>Factory Method</td>
+          <td>Mapping $f: K \to \mathcal{T}$</td>
+          <td class="yes">Always</td>
+          <td class="no">No (scalar)</td>
+          <td class="no">No</td>
+        </tr>
+        <tr>
+          <td>Abstract Factory</td>
+          <td>Vector $f: F \to \mathcal{T}_1 \times \cdots \times \mathcal{T}_n$</td>
+          <td class="yes">Always</td>
+          <td class="yes">Yes (family)</td>
+          <td class="no">No</td>
+        </tr>
+        <tr>
+          <td>Builder</td>
+          <td>Composition $f = g_n \circ \cdots \circ g_1$</td>
+          <td class="yes">Always</td>
+          <td class="no">No</td>
+          <td class="no">No</td>
+        </tr>
+        <tr>
+          <td>Prototype</td>
+          <td>Copy $f(x) = x'$</td>
+          <td class="yes">Always</td>
+          <td class="no">No</td>
+          <td class="yes">Yes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>
