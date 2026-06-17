@@ -10,4 +10,4 @@ wheels/
 .venv
 
 # Documents
-docs/
+html_files/
